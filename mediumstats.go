@@ -13,11 +13,7 @@ import (
 func main() {
 	var ss []string
 	phraseList := []string{"(file attached)", "<Media omitted>"}
-	ignoreWords := []string{
-		"van", "de", "een", "ik", "jij", "het", "-", "je", "is", "dat", "en", "ook", "in", "op", "wel", "met", "voor",
-		"of", "er", "als", "dan", "niet", "die", "maar", "te", "nog", "heb", "kan", "zijn", "wat", "aan", "om", "bij",
-		"al", "nu", "was", "ben", "zo", "mijn", "meer", "ze", "we", "mij", "naar", "dit", "dus", "heeft", "even", "geen",
-	}
+	stopWords := getStopWords()
 
 	rStart, err := regexp.Compile("^[0-9]{2}/[0-9]{2}/[0-9]{4}, [0-9]{2}:[0-9]{2} - .*:")
 	if err != nil {
@@ -38,12 +34,27 @@ func main() {
 	}
 	ss = deleteLinesWithPhrases(ss, phraseList)
 	ss = deleteParts(ss, rStart)
-	keys, words := countWords(ss, ignoreWords)
+	keys, words := countWords(ss, stopWords)
 
 	//fmt.Println(strings.Join(ss, "\n"))
 	for _, k := range keys {
 		fmt.Println(k, words[k])
 	}
+}
+
+func getStopWords() []string {
+	var words []string
+	file, err := os.Open("resources/stop-words.txt")
+	if err != nil {
+		log.Fatalf("Error while trying to open stop-words.txt: #{err}")
+	}
+	fileScanner := bufio.NewScanner(file)
+	fileScanner.Split(bufio.ScanLines)
+	for fileScanner.Scan() {
+		word := fileScanner.Text()
+		words = append(words, word)
+	}
+	return words
 }
 
 func deleteLinesWithPhrases(ss []string, phraseList []string) []string {
