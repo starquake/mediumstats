@@ -36,7 +36,6 @@ func main() {
 	ss = deleteParts(ss, rStart)
 	keys, words := countWords(ss, stopWords)
 
-	//fmt.Println(strings.Join(ss, "\n"))
 	for _, k := range keys {
 		fmt.Println(k, words[k])
 	}
@@ -74,6 +73,16 @@ func deleteLinesWithPhrases(ss []string, phraseList []string) []string {
 
 }
 
+func deleteParts(ss []string, regexp *regexp.Regexp) []string {
+	var ssNew []string
+
+	for _, s := range ss {
+		s = regexp.ReplaceAllString(s, "")
+		ssNew = append(ssNew, s)
+	}
+	return ssNew
+}
+
 func countWords(ss []string, ignore []string) ([]string, map[string]int) {
 	m := make(map[string]int)
 	for _, s := range ss {
@@ -101,14 +110,4 @@ func countWords(ss []string, ignore []string) ([]string, map[string]int) {
 	})
 
 	return keys, m
-}
-
-func deleteParts(ss []string, regexp *regexp.Regexp) []string {
-	var ssNew []string
-
-	for _, s := range ss {
-		s = regexp.ReplaceAllString(s, "")
-		ssNew = append(ssNew, s)
-	}
-	return ssNew
 }
