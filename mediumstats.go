@@ -10,6 +10,15 @@ import (
 	"strings"
 )
 
+// checks checks to see if all functions executed without returning an error
+func checks(fs ...func() error) {
+	for i := len(fs) - 1; i >= 0; i-- {
+		if err := fs[i](); err != nil {
+			fmt.Println("Received error:", err)
+		}
+	}
+}
+
 func main() {
 	var ss []string
 	phraseList := []string{"(file attached)", "<Media omitted>"}
@@ -24,6 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error while trying to open chat.txt: %s", err)
 	}
+	defer checks(file.Close)
 
 	fileScanner := bufio.NewScanner(file)
 	fileScanner.Split(bufio.ScanLines)
@@ -70,7 +80,6 @@ func deleteLinesWithPhrases(ss []string, phraseList []string) []string {
 		}
 	}
 	return ssNew
-
 }
 
 func deleteParts(ss []string, regexp *regexp.Regexp) []string {
@@ -90,7 +99,7 @@ func countWords(ss []string, ignore []string) ([]string, map[string]int) {
 		for _, word := range words {
 			hasWord := false
 			for _, i := range ignore {
-				if strings.ToLower(word) == i {
+				if strings.EqualFold(word, i) {
 					hasWord = true
 				}
 			}
